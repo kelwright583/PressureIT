@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/link";
 import {
   Phone,
   Mail,
@@ -10,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
+  PenLine,
 } from "lucide-react";
 import { updateQuoteStatus } from "@/app/admin/actions/quotes";
 import type { QuoteRequest } from "@/db/types";
@@ -243,8 +245,8 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
                       </div>
                     )}
 
-                    {/* Status dropdown */}
-                    <div className="flex items-center gap-3">
+                    {/* Status + Quote actions */}
+                    <div className="flex flex-wrap items-center gap-3">
                       <label
                         htmlFor={`status-${item.id}`}
                         className="text-sm font-medium text-muted"
@@ -272,6 +274,13 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
                       {isUpdating && (
                         <span className="text-xs text-muted">Updating...</span>
                       )}
+                      <Link
+                        href={`/admin/quotes/${item.id}`}
+                        className="ml-auto inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-ink transition-all hover:brightness-110 active:scale-[0.98]"
+                      >
+                        <PenLine className="h-4 w-4" />
+                        {item.status === "quoted" ? "View Quote" : "Create Quote"}
+                      </Link>
                     </div>
                   </div>
                 )}

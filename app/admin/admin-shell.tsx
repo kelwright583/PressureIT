@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Bell,
 } from "lucide-react";
 
 interface NavItem {
@@ -83,11 +84,13 @@ export function AdminShell({
   pathname,
   userName,
   userRole,
+  newQuoteCount = 0,
   children,
 }: {
   pathname: string;
   userName: string | null;
   userRole: string;
+  newQuoteCount?: number;
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -125,13 +128,27 @@ export function AdminShell({
               className="h-14 w-auto object-contain"
             />
           </Link>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="rounded-lg p-1.5 text-muted hover:bg-line hover:text-bone lg:hidden"
-            aria-label="Close sidebar"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/admin/quotes"
+              className="relative rounded-lg p-1.5 text-muted hover:bg-line hover:text-bone"
+              aria-label={`Notifications${newQuoteCount > 0 ? ` (${newQuoteCount} new)` : ""}`}
+            >
+              <Bell className="h-5 w-5" />
+              {newQuoteCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-ink">
+                  {newQuoteCount > 9 ? "9+" : newQuoteCount}
+                </span>
+              )}
+            </Link>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="rounded-lg p-1.5 text-muted hover:bg-line hover:text-bone lg:hidden"
+              aria-label="Close sidebar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -163,6 +180,11 @@ export function AdminShell({
                       {item.icon}
                     </span>
                     <span className="flex-1">{item.label}</span>
+                    {item.href === "/admin/quotes" && newQuoteCount > 0 && (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-ink">
+                        {newQuoteCount}
+                      </span>
+                    )}
                     {active && (
                       <ChevronRight className="h-4 w-4 text-accent/60" />
                     )}
@@ -206,8 +228,20 @@ export function AdminShell({
             alt="Pressure-It"
             width={220}
             height={88}
-            className="h-12 w-auto object-contain"
+            className="h-12 w-auto object-contain flex-1"
           />
+          <Link
+            href="/admin/quotes"
+            className="relative rounded-lg p-1.5 text-muted hover:bg-line hover:text-bone"
+            aria-label={`Notifications${newQuoteCount > 0 ? ` (${newQuoteCount} new)` : ""}`}
+          >
+            <Bell className="h-5 w-5" />
+            {newQuoteCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-ink">
+                {newQuoteCount > 9 ? "9+" : newQuoteCount}
+              </span>
+            )}
+          </Link>
         </header>
 
         {/* Page content */}

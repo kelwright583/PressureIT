@@ -39,11 +39,18 @@ export default async function AdminLayout({
     redirect("/admin/login?error=unauthorized");
   }
 
+  // Fetch unread quote count for notification bell
+  const { count: newQuoteCount } = await supabase
+    .from("quote_requests")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "new");
+
   return (
     <AdminShell
       pathname={pathname}
       userName={profile.name}
       userRole={profile.role}
+      newQuoteCount={newQuoteCount ?? 0}
     >
       {children}
     </AdminShell>

@@ -97,6 +97,31 @@ export interface MediaAsset {
   created_at: string;
 }
 
+export interface Quotation {
+  id: string;
+  quote_request_id: string;
+  quote_number: string;
+  notes: string | null;
+  valid_days: number;
+  subtotal: number;
+  vat_rate: number;
+  vat_amount: number;
+  total: number;
+  status: "draft" | "sent" | "accepted" | "rejected";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QuotationItem {
+  id: string;
+  quotation_id: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  total: number;
+  sort_order: number;
+}
+
 export type ActionResult = {
   ok: boolean;
   message: string;
