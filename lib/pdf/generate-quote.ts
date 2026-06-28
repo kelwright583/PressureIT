@@ -181,7 +181,7 @@ export async function generateQuotePDF(data: QuotePDFData): Promise<jsPDF> {
   const colDesc = margin;
   const colQty = margin + contentW - 70;
   const colPrice = margin + contentW - 45;
-  const colTotal = margin + contentW;
+  const colTotal = margin + contentW - 4;
   const rowH = 9;
 
   // Table header — yellow background
@@ -231,7 +231,7 @@ export async function generateQuotePDF(data: QuotePDFData): Promise<jsPDF> {
 
   // ─── TOTALS SECTION ───────────────────────────────────────────────
   const totalsX = margin + contentW - 75;
-  const totalsValX = margin + contentW;
+  const totalsValX = margin + contentW - 4;
 
   // Subtotal
   doc.setFontSize(9);
@@ -251,7 +251,7 @@ export async function generateQuotePDF(data: QuotePDFData): Promise<jsPDF> {
 
   // Total — highlighted box
   doc.setFillColor(BLACK);
-  doc.roundedRect(totalsX - 6, y - 5, contentW - totalsX + margin + 6, 14, 3, 3, "F");
+  doc.roundedRect(totalsX - 6, y - 5, contentW - totalsX + margin + 10, 14, 3, 3, "F");
 
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
