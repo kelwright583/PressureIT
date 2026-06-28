@@ -106,7 +106,7 @@ export function AdminShell({
       {/* Sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-line bg-ink-soft transition-transform duration-200 ease-in-out
+          fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-line bg-black transition-transform duration-200 ease-in-out
           lg:static lg:translate-x-0
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
@@ -193,7 +193,7 @@ export function AdminShell({
       {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar (mobile) */}
-        <header className="flex h-16 shrink-0 items-center gap-4 border-b border-line bg-ink-soft px-4 lg:hidden">
+        <header className="flex h-16 shrink-0 items-center gap-4 border-b border-line bg-black px-4 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
             className="rounded-lg p-1.5 text-muted hover:bg-line hover:text-bone"
