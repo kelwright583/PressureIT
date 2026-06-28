@@ -81,6 +81,9 @@ export interface QuoteRequest {
   email: string | null;
   service: string | null;
   area: string | null;
+  property_type: string | null;
+  surface_area: string | null;
+  address: string | null;
   message: string | null;
   status: "new" | "contacted" | "quoted" | "won" | "lost";
   source: string;

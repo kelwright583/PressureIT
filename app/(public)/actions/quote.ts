@@ -12,6 +12,9 @@ const QuoteSchema = z.object({
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
   service: z.string().optional(),
   area: z.string().optional(),
+  property_type: z.string().optional(),
+  surface_area: z.string().optional(),
+  address: z.string().optional(),
   message: z.string().optional(),
 });
 
@@ -42,6 +45,9 @@ export async function submitQuote(formData: FormData): Promise<ActionResult> {
     email: emptyToUndefined(formData.get("email")) ?? "",
     service: emptyToUndefined(formData.get("service")),
     area: emptyToUndefined(formData.get("area")),
+    property_type: emptyToUndefined(formData.get("property_type")),
+    surface_area: emptyToUndefined(formData.get("surface_area")),
+    address: emptyToUndefined(formData.get("address")),
     message: emptyToUndefined(formData.get("message")),
   });
 
@@ -67,6 +73,15 @@ export async function submitQuote(formData: FormData): Promise<ActionResult> {
   if (parsed.data.area) {
     insertData.area = parsed.data.area;
   }
+  if (parsed.data.property_type) {
+    insertData.property_type = parsed.data.property_type;
+  }
+  if (parsed.data.surface_area) {
+    insertData.surface_area = parsed.data.surface_area;
+  }
+  if (parsed.data.address) {
+    insertData.address = parsed.data.address;
+  }
   if (parsed.data.message) {
     insertData.message = parsed.data.message;
   }
@@ -85,6 +100,9 @@ export async function submitQuote(formData: FormData): Promise<ActionResult> {
       email: parsed.data.email && parsed.data.email.length > 0 ? parsed.data.email : undefined,
       service: parsed.data.service,
       area: parsed.data.area,
+      property_type: parsed.data.property_type,
+      surface_area: parsed.data.surface_area,
+      address: parsed.data.address,
       message: parsed.data.message,
     });
     // Acknowledge the customer if they provided an email

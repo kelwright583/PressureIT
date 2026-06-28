@@ -263,6 +263,20 @@ export function QuoteBuilder({
             <p className="text-sm font-medium text-bone">{request.area || "-"}</p>
           </div>
           <div>
+            <p className="text-xs text-muted">Property Type</p>
+            <p className="text-sm font-medium text-bone">{request.property_type || "-"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted">Surface Area</p>
+            <p className="text-sm font-medium text-bone">{request.surface_area || "-"}</p>
+          </div>
+          {request.address && (
+            <div className="col-span-2">
+              <p className="text-xs text-muted">Address</p>
+              <p className="text-sm font-medium text-bone">{request.address}</p>
+            </div>
+          )}
+          <div>
             <p className="text-xs text-muted">Status</p>
             <p className="text-sm font-medium text-bone capitalize">{request.status}</p>
           </div>

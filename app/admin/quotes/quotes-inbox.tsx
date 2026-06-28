@@ -217,6 +217,32 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
                       </div>
                       <div>
                         <p className="text-[11px] font-medium uppercase tracking-wider text-muted">
+                          Property Type
+                        </p>
+                        <p className="mt-0.5 text-sm text-bone">
+                          {item.property_type || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-muted">
+                          Surface Area
+                        </p>
+                        <p className="mt-0.5 text-sm text-bone">
+                          {item.surface_area || "-"}
+                        </p>
+                      </div>
+                      {item.address && (
+                        <div className="col-span-2">
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-muted">
+                            Address
+                          </p>
+                          <p className="mt-0.5 text-sm text-bone">
+                            {item.address}
+                          </p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-muted">
                           Source
                         </p>
                         <p className="mt-0.5 text-sm text-bone">

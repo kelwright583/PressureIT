@@ -314,19 +314,78 @@ export default function QuoteForm({
           </select>
         </div>
 
+        {/* Property Type */}
+        <div>
+          <label
+            htmlFor="quote-property-type"
+            className="block text-bone text-sm font-medium mb-1.5"
+          >
+            Property Type
+          </label>
+          <select
+            id="quote-property-type"
+            name="property_type"
+            className="w-full bg-ink border border-line rounded-xl px-4 py-3 text-bone text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/50 transition-all appearance-none"
+            defaultValue=""
+          >
+            <option value="" disabled className="text-muted">
+              Select property type (optional)
+            </option>
+            <option value="Residential" className="bg-ink-soft">Residential</option>
+            <option value="Commercial" className="bg-ink-soft">Commercial</option>
+            <option value="Complex / Estate" className="bg-ink-soft">Complex / Estate</option>
+            <option value="Industrial" className="bg-ink-soft">Industrial</option>
+          </select>
+        </div>
+
+        {/* Surface Area */}
+        <div>
+          <label
+            htmlFor="quote-surface-area"
+            className="block text-bone text-sm font-medium mb-1.5"
+          >
+            Approx. Surface Area (m²)
+          </label>
+          <input
+            type="text"
+            id="quote-surface-area"
+            name="surface_area"
+            placeholder="e.g. 50m², 100m², or 'large driveway'"
+            className="w-full bg-ink border border-line rounded-xl px-4 py-3 text-bone placeholder:text-muted/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/50 transition-all"
+          />
+        </div>
+
+        {/* Property Address */}
+        <div>
+          <label
+            htmlFor="quote-address"
+            className="block text-bone text-sm font-medium mb-1.5"
+          >
+            Property Address
+          </label>
+          <input
+            type="text"
+            id="quote-address"
+            name="address"
+            autoComplete="street-address"
+            placeholder="Street address or complex name (optional)"
+            className="w-full bg-ink border border-line rounded-xl px-4 py-3 text-bone placeholder:text-muted/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/50 transition-all"
+          />
+        </div>
+
         {/* Message */}
         <div>
           <label
             htmlFor="quote-message"
             className="block text-bone text-sm font-medium mb-1.5"
           >
-            Message
+            Additional Details
           </label>
           <textarea
             id="quote-message"
             name="message"
             rows={4}
-            placeholder="Tell us about your project... (optional)"
+            placeholder="Anything else we should know — condition, access, special requirements..."
             className="w-full bg-ink border border-line rounded-xl px-4 py-3 text-bone placeholder:text-muted/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/50 transition-all resize-y min-h-[100px]"
           />
         </div>

@@ -10,6 +10,9 @@ export async function sendQuoteNotification(data: {
   email?: string | null;
   service?: string | null;
   area?: string | null;
+  property_type?: string | null;
+  surface_area?: string | null;
+  address?: string | null;
   message?: string | null;
 }) {
   const resend = getResend();
@@ -27,6 +30,9 @@ export async function sendQuoteNotification(data: {
         ${data.email ? `<tr><td style="padding:8px 0;color:#999;">Email</td><td style="padding:8px 0;"><a href="mailto:${data.email}" style="color:#FDE500;">${data.email}</a></td></tr>` : ""}
         ${data.service ? `<tr><td style="padding:8px 0;color:#999;">Service</td><td style="padding:8px 0;color:#fff;">${data.service}</td></tr>` : ""}
         ${data.area ? `<tr><td style="padding:8px 0;color:#999;">Area</td><td style="padding:8px 0;color:#fff;">${data.area}</td></tr>` : ""}
+        ${data.property_type ? `<tr><td style="padding:8px 0;color:#999;">Property Type</td><td style="padding:8px 0;color:#fff;">${data.property_type}</td></tr>` : ""}
+        ${data.surface_area ? `<tr><td style="padding:8px 0;color:#999;">Surface Area</td><td style="padding:8px 0;color:#fff;">${data.surface_area}</td></tr>` : ""}
+        ${data.address ? `<tr><td style="padding:8px 0;color:#999;">Address</td><td style="padding:8px 0;color:#fff;">${data.address}</td></tr>` : ""}
         ${data.message ? `<tr><td style="padding:8px 0;color:#999;">Message</td><td style="padding:8px 0;color:#fff;">${data.message}</td></tr>` : ""}
       </table>
       <div style="margin-top:24px;">
