@@ -122,7 +122,7 @@ export async function submitQuote(formData: FormData): Promise<ActionResult> {
     await sendPushToAdmins({
       title: "New Quote Request",
       body: `${parsed.data.name}${parsed.data.service ? ` — ${parsed.data.service}` : ""}`,
-      url: "/admin/quotes",
+      url: "/admin/notifications",
       tag: "new-quote",
     });
   } catch (pushError) {

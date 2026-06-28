@@ -207,7 +207,7 @@ export function QuoteBuilder({
       {/* Back link + header */}
       <div className="flex items-center gap-3">
         <Link
-          href="/admin/quotes"
+          href="/admin/quotations"
           className="rounded-lg p-2 text-muted hover:bg-line hover:text-bone"
         >
           <ArrowLeft className="h-5 w-5" />

@@ -101,7 +101,7 @@ export async function saveQuotation(
       return { ok: false, message: itemsError.message };
     }
 
-    revalidatePath("/admin/quotes");
+    revalidatePath("/admin/quotations");
     return { ok: true, message: "Quotation updated.", quotation_id: existing.id };
   }
 
@@ -159,7 +159,7 @@ export async function saveQuotation(
     .update({ status: "quoted" })
     .eq("id", quote_request_id);
 
-  revalidatePath("/admin/quotes");
+  revalidatePath("/admin/quotations");
   return { ok: true, message: "Quotation created.", quotation_id: quotation.id };
 }
 
@@ -180,6 +180,30 @@ export async function updateQuotationStatus(
 
   if (error) return { ok: false, message: error.message };
 
-  revalidatePath("/admin/quotes");
+  revalidatePath("/admin/quotations");
   return { ok: true, message: `Quotation marked as ${status}.` };
+}
+
+export async function deleteQuotation(id: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Unauthorized" };
+
+  // Delete items first (cascade may not be set up)
+  await supabase
+    .from("quotation_items")
+    .delete()
+    .eq("quotation_id", id);
+
+  const { error } = await supabase
+    .from("quotations")
+    .delete()
+    .eq("id", id);
+
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath("/admin/quotations");
+  return { ok: true, message: "Quotation deleted." };
 }

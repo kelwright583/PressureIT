@@ -37,7 +37,7 @@ export async function updateQuoteStatus(formData: FormData): Promise<ActionResul
     return { ok: false, message: error.message };
   }
 
-  revalidatePath("/admin/quotes");
+  revalidatePath("/admin/notifications");
 
   return { ok: true, message: "Quote status updated." };
 }
@@ -56,7 +56,7 @@ export async function markQuoteRead(id: string): Promise<ActionResult> {
 
   if (error) return { ok: false, message: error.message };
 
-  revalidatePath("/admin/quotes");
+  revalidatePath("/admin/notifications");
   revalidatePath("/admin");
   return { ok: true, message: "Marked as read." };
 }
@@ -75,7 +75,7 @@ export async function markQuoteUnread(id: string): Promise<ActionResult> {
 
   if (error) return { ok: false, message: error.message };
 
-  revalidatePath("/admin/quotes");
+  revalidatePath("/admin/notifications");
   revalidatePath("/admin");
   return { ok: true, message: "Marked as unread." };
 }
@@ -94,7 +94,7 @@ export async function deleteQuoteRequest(id: string): Promise<ActionResult> {
 
   if (error) return { ok: false, message: error.message };
 
-  revalidatePath("/admin/quotes");
+  revalidatePath("/admin/notifications");
   revalidatePath("/admin");
   return { ok: true, message: "Quote request deleted." };
 }

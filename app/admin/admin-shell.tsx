@@ -24,6 +24,7 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  badgeKey?: "notifications";
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -31,6 +32,17 @@ const NAV_ITEMS: NavItem[] = [
     label: "Dashboard",
     href: "/admin",
     icon: <LayoutDashboard className="h-5 w-5" />,
+  },
+  {
+    label: "Notifications",
+    href: "/admin/notifications",
+    icon: <Bell className="h-5 w-5" />,
+    badgeKey: "notifications",
+  },
+  {
+    label: "Quotations",
+    href: "/admin/quotations",
+    icon: <FileText className="h-5 w-5" />,
   },
   {
     label: "Before/After",
@@ -46,11 +58,6 @@ const NAV_ITEMS: NavItem[] = [
     label: "Testimonials",
     href: "/admin/testimonials",
     icon: <MessageSquareQuote className="h-5 w-5" />,
-  },
-  {
-    label: "Quotes",
-    href: "/admin/quotes",
-    icon: <FileText className="h-5 w-5" />,
   },
   {
     label: "Settings",
@@ -131,7 +138,7 @@ export function AdminShell({
           </Link>
           <div className="flex items-center gap-1">
             <Link
-              href="/admin/quotes"
+              href="/admin/notifications"
               className="relative rounded-lg p-1.5 text-muted hover:bg-line hover:text-bone"
               aria-label={`Notifications${newQuoteCount > 0 ? ` (${newQuoteCount} new)` : ""}`}
             >
@@ -184,7 +191,7 @@ export function AdminShell({
                       {item.icon}
                     </span>
                     <span className="flex-1">{item.label}</span>
-                    {item.href === "/admin/quotes" && newQuoteCount > 0 && (
+                    {item.badgeKey === "notifications" && newQuoteCount > 0 && (
                       <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-ink">
                         {newQuoteCount}
                       </span>
@@ -235,7 +242,7 @@ export function AdminShell({
             className="h-12 w-auto object-contain mix-blend-lighten flex-1"
           />
           <Link
-            href="/admin/quotes"
+            href="/admin/notifications"
             className="relative rounded-lg p-1.5 text-muted hover:bg-line hover:text-bone"
             aria-label={`Notifications${newQuoteCount > 0 ? ` (${newQuoteCount} new)` : ""}`}
           >

@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import type { QuoteRequest } from "@/db/types";
-import { QuotesInbox } from "./quotes-inbox";
+import { NotificationsInbox } from "./notifications-inbox";
 
-export default async function QuotesPage() {
+export default async function NotificationsPage() {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -15,11 +15,11 @@ export default async function QuotesPage() {
     return (
       <div className="mx-auto max-w-5xl">
         <p className="text-red-400">
-          Failed to load quotes: {error.message}
+          Failed to load notifications: {error.message}
         </p>
       </div>
     );
   }
 
-  return <QuotesInbox items={data ?? []} />;
+  return <NotificationsInbox items={data ?? []} />;
 }

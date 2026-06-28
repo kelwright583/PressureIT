@@ -59,7 +59,7 @@ export default async function AdminDashboard() {
       label: "Quote Requests",
       count: quotesRes.count ?? 0,
       icon: <FileText className="h-6 w-6" />,
-      href: "/admin/quotes",
+      href: "/admin/notifications",
       badge: quotesNewRes.count ?? 0,
     },
     {
@@ -87,7 +87,7 @@ export default async function AdminDashboard() {
       {/* New quotes alert */}
       {newQuotes > 0 && (
         <Link
-          href="/admin/quotes"
+          href="/admin/notifications"
           className="flex items-center gap-3 rounded-xl border border-accent/30 bg-accent/10 p-4 transition-colors hover:bg-accent/15"
         >
           <AlertCircle className="h-5 w-5 shrink-0 text-accent" />

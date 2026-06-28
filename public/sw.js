@@ -10,7 +10,7 @@ self.addEventListener("push", (event) => {
     badge: "/icons/icon-512.jpg",
     tag: data.tag || "pressure-it-notification",
     data: {
-      url: data.url || "/admin/quotes",
+      url: data.url || "/admin/notifications",
     },
     vibrate: [200, 100, 200],
     actions: [
@@ -24,7 +24,7 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const url = event.notification.data?.url || "/admin/quotes";
+  const url = event.notification.data?.url || "/admin/notifications";
 
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {

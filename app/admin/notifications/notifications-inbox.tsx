@@ -12,14 +12,11 @@ import {
   ChevronUp,
   FileText,
   PenLine,
-  Eye,
-  EyeOff,
   Trash2,
 } from "lucide-react";
 import {
   updateQuoteStatus,
   markQuoteRead,
-  markQuoteUnread,
   deleteQuoteRequest,
 } from "@/app/admin/actions/quotes";
 import type { QuoteRequest } from "@/db/types";
@@ -67,16 +64,30 @@ function formatDate(dateStr: string): string {
   });
 }
 
-export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
+export function NotificationsInbox({ items }: { items: QuoteRequest[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [markedIds, setMarkedIds] = useState<Set<string>>(new Set());
 
-  const newCount = items.filter((q) => q.status === "new").length;
+  const newCount = items.filter(
+    (q) => !q.read_at && !markedIds.has(q.id)
+  ).length;
 
   function toggleExpand(id: string) {
-    setExpandedId(expandedId === id ? null : id);
+    const opening = expandedId !== id;
+    setExpandedId(opening ? id : null);
+
+    // Auto-mark as read when expanding an unread notification
+    const item = items.find((q) => q.id === id);
+    if (opening && item && !item.read_at && !markedIds.has(id)) {
+      setMarkedIds((prev) => new Set(prev).add(id));
+      startTransition(async () => {
+        await markQuoteRead(id);
+        router.refresh();
+      });
+    }
   }
 
   function handleStatusChange(id: string, status: Status) {
@@ -96,24 +107,10 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
     });
   }
 
-  function handleToggleRead(id: string, readAt: string | null) {
-    setUpdatingId(id);
-    startTransition(async () => {
-      const result = readAt
-        ? await markQuoteUnread(id)
-        : await markQuoteRead(id);
-      if (result.ok) {
-        toast.success(result.message);
-        router.refresh();
-      } else {
-        toast.error(result.message);
-      }
-      setUpdatingId(null);
-    });
-  }
-
   function handleDelete(id: string, name: string) {
-    if (!confirm(`Delete quote request from ${name}? This cannot be undone.`)) {
+    if (
+      !confirm(`Delete notification from ${name}? This cannot be undone.`)
+    ) {
       return;
     }
     setUpdatingId(id);
@@ -136,7 +133,7 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="font-display text-3xl tracking-tight text-accent sm:text-4xl">
-              Quote Requests
+              Notifications
             </h1>
             {newCount > 0 && (
               <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-ink">
@@ -145,7 +142,7 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
             )}
           </div>
           <p className="mt-1 text-sm text-muted">
-            {items.length} total request{items.length !== 1 ? "s" : ""}
+            Incoming quote requests &middot; {items.length} total
           </p>
         </div>
       </div>
@@ -154,7 +151,7 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
       {items.length === 0 ? (
         <div className="rounded-xl border border-line bg-ink-soft p-12 text-center">
           <FileText className="mx-auto mb-3 h-10 w-10 text-muted" />
-          <p className="text-muted">No quote requests yet.</p>
+          <p className="text-muted">No notifications yet.</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -162,6 +159,7 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
             const expanded = expandedId === item.id;
             const config = STATUS_CONFIG[item.status];
             const isUpdating = updatingId === item.id;
+            const isUnread = !item.read_at && !markedIds.has(item.id);
 
             return (
               <div
@@ -182,13 +180,15 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
                   </span>
 
                   {/* Unread dot */}
-                  {!item.read_at && (
+                  {isUnread && (
                     <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />
                   )}
 
                   {/* Name + service */}
                   <div className="min-w-0 flex-1">
-                    <p className={`truncate text-sm text-bone ${!item.read_at ? "font-bold" : "font-medium"}`}>
+                    <p
+                      className={`truncate text-sm text-bone ${isUnread ? "font-bold" : "font-medium"}`}
+                    >
                       {item.name}
                     </p>
                     <p className="truncate text-xs text-muted">
@@ -317,7 +317,7 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
                       </div>
                     )}
 
-                    {/* Status + Quote actions */}
+                    {/* Status + actions */}
                     <div className="flex flex-wrap items-center gap-3">
                       <label
                         htmlFor={`status-${item.id}`}
@@ -347,26 +347,6 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
                         <span className="text-xs text-muted">Updating...</span>
                       )}
 
-                      {/* Read/Unread toggle */}
-                      <button
-                        type="button"
-                        onClick={() => handleToggleRead(item.id, item.read_at)}
-                        disabled={isUpdating}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-ink-soft px-3 py-2 text-xs font-medium text-muted transition-colors hover:bg-line hover:text-bone disabled:opacity-50"
-                      >
-                        {item.read_at ? (
-                          <>
-                            <EyeOff className="h-3.5 w-3.5" />
-                            Mark Unread
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="h-3.5 w-3.5" />
-                            Mark Read
-                          </>
-                        )}
-                      </button>
-
                       {/* Delete */}
                       <button
                         type="button"
@@ -379,11 +359,13 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
                       </button>
 
                       <Link
-                        href={`/admin/quotes/${item.id}`}
+                        href={`/admin/quotations/${item.id}`}
                         className="ml-auto inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-ink transition-all hover:brightness-110 active:scale-[0.98]"
                       >
                         <PenLine className="h-4 w-4" />
-                        {item.status === "quoted" ? "View Quote" : "Create Quote"}
+                        {item.status === "quoted"
+                          ? "View Quote"
+                          : "Create Quote"}
                       </Link>
                     </div>
                   </div>
