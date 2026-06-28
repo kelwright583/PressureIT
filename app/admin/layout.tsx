@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/db/types";
 import { AdminShell } from "./admin-shell";
+
+export const metadata: Metadata = {
+  manifest: "/api/admin-manifest",
+};
 
 export default async function AdminLayout({
   children,
