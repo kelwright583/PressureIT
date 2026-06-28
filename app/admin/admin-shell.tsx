@@ -125,7 +125,7 @@ export function AdminShell({
               alt="Pressure-It"
               width={260}
               height={104}
-              className="h-14 w-auto object-contain"
+              className="h-14 w-auto object-contain mix-blend-lighten"
             />
           </Link>
           <div className="flex items-center gap-1">
@@ -228,7 +228,7 @@ export function AdminShell({
             alt="Pressure-It"
             width={220}
             height={88}
-            className="h-12 w-auto object-contain flex-1"
+            className="h-12 w-auto object-contain mix-blend-lighten flex-1"
           />
           <Link
             href="/admin/quotes"
