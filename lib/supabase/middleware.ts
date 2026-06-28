@@ -47,8 +47,19 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(adminUrl);
   }
 
-  // Set x-pathname header for admin layout
-  supabaseResponse.headers.set("x-pathname", pathname);
+  // Set x-pathname as a REQUEST header so server components can read it
+  // via headers(). Response headers are only visible to clients.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
 
-  return supabaseResponse;
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+
+  // Copy Supabase auth cookies to the new response
+  for (const cookie of supabaseResponse.cookies.getAll()) {
+    response.cookies.set(cookie);
+  }
+
+  return response;
 }
