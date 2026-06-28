@@ -12,8 +12,16 @@ import {
   ChevronUp,
   FileText,
   PenLine,
+  Eye,
+  EyeOff,
+  Trash2,
 } from "lucide-react";
-import { updateQuoteStatus } from "@/app/admin/actions/quotes";
+import {
+  updateQuoteStatus,
+  markQuoteRead,
+  markQuoteUnread,
+  deleteQuoteRequest,
+} from "@/app/admin/actions/quotes";
 import type { QuoteRequest } from "@/db/types";
 
 type Status = QuoteRequest["status"];
@@ -88,6 +96,39 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
     });
   }
 
+  function handleToggleRead(id: string, readAt: string | null) {
+    setUpdatingId(id);
+    startTransition(async () => {
+      const result = readAt
+        ? await markQuoteUnread(id)
+        : await markQuoteRead(id);
+      if (result.ok) {
+        toast.success(result.message);
+        router.refresh();
+      } else {
+        toast.error(result.message);
+      }
+      setUpdatingId(null);
+    });
+  }
+
+  function handleDelete(id: string, name: string) {
+    if (!confirm(`Delete quote request from ${name}? This cannot be undone.`)) {
+      return;
+    }
+    setUpdatingId(id);
+    startTransition(async () => {
+      const result = await deleteQuoteRequest(id);
+      if (result.ok) {
+        toast.success(result.message);
+        router.refresh();
+      } else {
+        toast.error(result.message);
+      }
+      setUpdatingId(null);
+    });
+  }
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
@@ -140,9 +181,14 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
                     {config.label}
                   </span>
 
+                  {/* Unread dot */}
+                  {!item.read_at && (
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />
+                  )}
+
                   {/* Name + service */}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-bone">
+                    <p className={`truncate text-sm text-bone ${!item.read_at ? "font-bold" : "font-medium"}`}>
                       {item.name}
                     </p>
                     <p className="truncate text-xs text-muted">
@@ -300,6 +346,38 @@ export function QuotesInbox({ items }: { items: QuoteRequest[] }) {
                       {isUpdating && (
                         <span className="text-xs text-muted">Updating...</span>
                       )}
+
+                      {/* Read/Unread toggle */}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleRead(item.id, item.read_at)}
+                        disabled={isUpdating}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-ink-soft px-3 py-2 text-xs font-medium text-muted transition-colors hover:bg-line hover:text-bone disabled:opacity-50"
+                      >
+                        {item.read_at ? (
+                          <>
+                            <EyeOff className="h-3.5 w-3.5" />
+                            Mark Unread
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-3.5 w-3.5" />
+                            Mark Read
+                          </>
+                        )}
+                      </button>
+
+                      {/* Delete */}
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(item.id, item.name)}
+                        disabled={isUpdating}
+                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/10 disabled:opacity-50"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
+
                       <Link
                         href={`/admin/quotes/${item.id}`}
                         className="ml-auto inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-ink transition-all hover:brightness-110 active:scale-[0.98]"

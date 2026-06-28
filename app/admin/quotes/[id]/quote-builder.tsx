@@ -13,9 +13,10 @@ import {
   Phone,
   Mail,
   MessageCircle,
-  FileText,
+  Download,
 } from "lucide-react";
 import { saveQuotation, updateQuotationStatus } from "@/app/admin/actions/quotations";
+import { downloadQuotePDF } from "@/lib/pdf/generate-quote";
 import type { QuoteRequest, Quotation, QuotationItem } from "@/db/types";
 
 interface LineItem {
@@ -47,66 +48,6 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function buildMailtoLink(
-  request: QuoteRequest,
-  quotation: { quote_number: string; valid_days: number; notes: string },
-  items: LineItem[],
-  subtotal: number,
-  vatAmount: number,
-  total: number,
-  companyPhone: string,
-  companyEmail: string
-): string {
-  const validUntil = new Date();
-  validUntil.setDate(validUntil.getDate() + quotation.valid_days);
-
-  const lineItemsText = items
-    .map(
-      (item, i) =>
-        `${i + 1}. ${item.description}\n   Qty: ${item.quantity} × ${formatCurrency(item.unit_price)} = ${formatCurrency(item.quantity * item.unit_price)}`
-    )
-    .join("\n\n");
-
-  const subject = encodeURIComponent(
-    `Quotation ${quotation.quote_number} — Pressure-It Premium Property Care`
-  );
-
-  const body = encodeURIComponent(
-    `Dear ${request.name},
-
-Thank you for your enquiry. Please find your quotation below.
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-QUOTATION ${quotation.quote_number}
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-${request.service ? `Service: ${request.service}` : ""}
-${request.area ? `Area: ${request.area}` : ""}
-
-LINE ITEMS:
-${lineItemsText}
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-Subtotal:  ${formatCurrency(subtotal)}
-VAT (15%): ${formatCurrency(vatAmount)}
-TOTAL:     ${formatCurrency(total)}
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-${quotation.notes ? `Notes:\n${quotation.notes}\n` : ""}
-Valid until: ${formatDate(validUntil.toISOString())}
-
-To accept this quotation, simply reply to this email or contact us:
-Phone: ${companyPhone}
-Email: ${companyEmail}
-
-Kind regards,
-Pressure-It — Premium Property Care
-www.pressure-it.co.za`
-  );
-
-  return `mailto:${request.email ?? ""}?subject=${subject}&body=${body}`;
-}
-
 export function QuoteBuilder({
   request,
   existingQuotation,
@@ -122,6 +63,7 @@ export function QuoteBuilder({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [generating, setGenerating] = useState(false);
 
   const [items, setItems] = useState<LineItem[]>(
     existingItems.length > 0
@@ -188,9 +130,54 @@ export function QuoteBuilder({
     });
   }
 
+  async function handleDownloadPDF() {
+    if (items.some((i) => !i.description.trim())) {
+      toast.error("All line items need a description.");
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      const quoteNumber =
+        existingQuotation?.quote_number ?? `PIT-${new Date().getFullYear()}-DRAFT`;
+
+      const validUntil = new Date();
+      validUntil.setDate(validUntil.getDate() + validDays);
+
+      await downloadQuotePDF({
+        quoteNumber,
+        date: formatDate(new Date().toISOString()),
+        validUntil: formatDate(validUntil.toISOString()),
+        customer: {
+          name: request.name,
+          phone: request.phone,
+          email: request.email,
+          service: request.service,
+          area: request.area,
+          propertyType: request.property_type,
+          surfaceArea: request.surface_area,
+          address: request.address,
+        },
+        items,
+        subtotal,
+        vatRate,
+        vatAmount,
+        total,
+        notes,
+        company: { phone: companyPhone, email: companyEmail },
+      });
+      toast.success("PDF downloaded!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate PDF.");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   function handleSendEmail() {
-    if (!existingQuotation && items.some((i) => !i.description.trim())) {
-      toast.error("Save the quotation first.");
+    if (items.some((i) => !i.description.trim())) {
+      toast.error("All line items need a description.");
       return;
     }
 
@@ -205,18 +192,14 @@ export function QuoteBuilder({
     const quoteNumber =
       existingQuotation?.quote_number ?? `PIT-${new Date().getFullYear()}-DRAFT`;
 
-    const url = buildMailtoLink(
-      request,
-      { quote_number: quoteNumber, valid_days: validDays, notes },
-      items,
-      subtotal,
-      vatAmount,
-      total,
-      companyPhone,
-      companyEmail
+    const subject = encodeURIComponent(
+      `Quotation ${quoteNumber} — Pressure-It Premium Property Care`
+    );
+    const body = encodeURIComponent(
+      `Dear ${request.name},\n\nThank you for your enquiry. Please find the attached quotation (${quoteNumber}).\n\nTo accept, simply reply to this email or contact us:\nPhone: ${companyPhone}\nEmail: ${companyEmail}\n\nKind regards,\nPressure-It — Premium Property Care\nwww.pressure-it.co.za`
     );
 
-    window.location.href = url;
+    window.location.href = `mailto:${request.email ?? ""}?subject=${subject}&body=${body}`;
   }
 
   return (
@@ -467,23 +450,26 @@ export function QuoteBuilder({
           {pending ? "Saving..." : existingQuotation ? "Update Quotation" : "Save Quotation"}
         </button>
 
+        <button
+          type="button"
+          onClick={handleDownloadPDF}
+          disabled={generating || items.some((i) => !i.description.trim())}
+          className="inline-flex items-center gap-2 rounded-lg border border-accent bg-transparent px-5 py-3 text-sm font-semibold text-accent transition-all hover:bg-accent/10 active:scale-[0.98] disabled:opacity-50"
+        >
+          <Download className="h-4 w-4" />
+          {generating ? "Generating..." : "Download PDF"}
+        </button>
+
         {request.email && (
           <button
             type="button"
             onClick={handleSendEmail}
             disabled={pending || items.some((i) => !i.description.trim())}
-            className="inline-flex items-center gap-2 rounded-lg border border-accent bg-transparent px-5 py-3 text-sm font-semibold text-accent transition-all hover:bg-accent/10 active:scale-[0.98] disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-line bg-transparent px-5 py-3 text-sm font-semibold text-bone transition-all hover:bg-line active:scale-[0.98] disabled:opacity-50"
           >
             <Send className="h-4 w-4" />
-            Send via Email
+            Email Client
           </button>
-        )}
-
-        {!request.email && (
-          <p className="flex items-center gap-2 text-sm text-muted">
-            <FileText className="h-4 w-4" />
-            No email on file — save and send via WhatsApp instead
-          </p>
         )}
       </div>
     </div>

@@ -43,7 +43,7 @@ export default async function AdminLayout({
   const { count: newQuoteCount } = await supabase
     .from("quote_requests")
     .select("*", { count: "exact", head: true })
-    .eq("status", "new");
+    .is("read_at", null);
 
   return (
     <AdminShell

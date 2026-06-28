@@ -41,3 +41,60 @@ export async function updateQuoteStatus(formData: FormData): Promise<ActionResul
 
   return { ok: true, message: "Quote status updated." };
 }
+
+export async function markQuoteRead(id: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Unauthorized" };
+
+  const { error } = await supabase
+    .from("quote_requests")
+    .update({ read_at: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath("/admin/quotes");
+  revalidatePath("/admin");
+  return { ok: true, message: "Marked as read." };
+}
+
+export async function markQuoteUnread(id: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Unauthorized" };
+
+  const { error } = await supabase
+    .from("quote_requests")
+    .update({ read_at: null })
+    .eq("id", id);
+
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath("/admin/quotes");
+  revalidatePath("/admin");
+  return { ok: true, message: "Marked as unread." };
+}
+
+export async function deleteQuoteRequest(id: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Unauthorized" };
+
+  const { error } = await supabase
+    .from("quote_requests")
+    .delete()
+    .eq("id", id);
+
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath("/admin/quotes");
+  revalidatePath("/admin");
+  return { ok: true, message: "Quote request deleted." };
+}

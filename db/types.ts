@@ -86,6 +86,7 @@ export interface QuoteRequest {
   address: string | null;
   message: string | null;
   status: "new" | "contacted" | "quoted" | "won" | "lost";
+  read_at: string | null;
   source: string;
   created_at: string;
   updated_at: string;
