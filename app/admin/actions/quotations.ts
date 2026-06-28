@@ -44,11 +44,18 @@ export async function saveQuotation(
   const total = +(subtotal + vat_amount).toFixed(2);
 
   // Check for existing quotation on this request
-  const { data: existing } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from("quotations")
     .select("id")
     .eq("quote_request_id", quote_request_id)
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
+
+  if (existingError) {
+    console.error("[saveQuotation] lookup error:", existingError);
+    return { ok: false, message: "Failed to check for existing quotation." };
+  }
 
   if (existing) {
     // Update existing quotation
@@ -65,7 +72,10 @@ export async function saveQuotation(
       })
       .eq("id", existing.id);
 
-    if (updateError) return { ok: false, message: updateError.message };
+    if (updateError) {
+      console.error("[saveQuotation] update error:", updateError);
+      return { ok: false, message: updateError.message };
+    }
 
     // Delete old items and insert new ones
     await supabase
@@ -86,7 +96,10 @@ export async function saveQuotation(
         }))
       );
 
-    if (itemsError) return { ok: false, message: itemsError.message };
+    if (itemsError) {
+      console.error("[saveQuotation] items update error:", itemsError);
+      return { ok: false, message: itemsError.message };
+    }
 
     revalidatePath("/admin/quotes");
     return { ok: true, message: "Quotation updated.", quotation_id: existing.id };
@@ -117,6 +130,7 @@ export async function saveQuotation(
     .single();
 
   if (qError || !quotation) {
+    console.error("[saveQuotation] insert error:", qError);
     return { ok: false, message: qError?.message ?? "Failed to create quotation" };
   }
 
@@ -134,7 +148,10 @@ export async function saveQuotation(
       }))
     );
 
-  if (itemsError) return { ok: false, message: itemsError.message };
+  if (itemsError) {
+    console.error("[saveQuotation] items insert error:", itemsError);
+    return { ok: false, message: itemsError.message };
+  }
 
   // Update quote request status to "quoted"
   await supabase
