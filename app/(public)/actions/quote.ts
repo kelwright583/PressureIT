@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { sendQuoteNotification, sendQuoteAcknowledgement } from "@/lib/email/resend";
+import { sendPushToAdmins } from "@/lib/push/send";
 import type { ActionResult } from "@/db/types";
 
 const QuoteSchema = z.object({
@@ -114,6 +115,18 @@ export async function submitQuote(formData: FormData): Promise<ActionResult> {
     }
   } catch (emailError) {
     console.error("[submitQuote] Failed to send email:", emailError);
+  }
+
+  // Push notification to admin devices
+  try {
+    await sendPushToAdmins({
+      title: "New Quote Request",
+      body: `${parsed.data.name}${parsed.data.service ? ` — ${parsed.data.service}` : ""}`,
+      url: "/admin/quotes",
+      tag: "new-quote",
+    });
+  } catch (pushError) {
+    console.error("[submitQuote] Failed to send push:", pushError);
   }
 
   revalidatePath("/");

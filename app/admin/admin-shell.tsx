@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Bell,
 } from "lucide-react";
+import { PushPrompt } from "./push-prompt";
 
 interface NavItem {
   label: string;
@@ -150,6 +151,9 @@ export function AdminShell({
             </button>
           </div>
         </div>
+
+        {/* Push notification prompt */}
+        <PushPrompt />
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
